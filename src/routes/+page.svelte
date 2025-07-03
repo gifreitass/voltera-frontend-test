@@ -1,20 +1,39 @@
-<script>
-    let name = $state('')
+<script lang="ts">
+    import type { PageProps } from "./$types";
+    import { goto } from "$app/navigation";
+    let { data }: PageProps = $props();
+    let name = $state("");
+    let timeout: NodeJS.Timeout;
+    let searching = false;
 
-    const handleInput = (event) => {
-        const urlParams = new URLSearchParams(window.location.search)
-        urlParams.set('name', event.target.value)
-        const newUrl = `${window.location.pathname}?${urlParams.toString()}`
-        window.history.replaceState(null, '', newUrl)
-    }
+    // alterar any
+    const handleInput = (event: any) => {
+        const inputName = event.target.value;
+        const urlParams = new URLSearchParams(window.location.search);
 
+        searching = true;
+        if (timeout) clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            searching = false;
+            if (inputName === "") {
+                urlParams.delete("name");
+            } else {
+                urlParams.set("name", inputName);
+            }
+            const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+            goto(newUrl, { keepFocus: true });
+        }, 500); //0,5 segundos
+    };
 </script>
 
 <p>Digite um nome abaixo:</p>
 <label for="name"></label>
 <input bind:value={name} placeholder="Insira um nome" oninput={handleInput} />
-<p>Hello {name || "stranger"}!</p>
+{#if data.nameInformation?.name && data.nameInformation?.age && data.nameInformation?.count}
+    <p>
+        Pessoas com o nome {data.nameInformation.name} tem uma média de idade de
+        {data.nameInformation.age} anos
+    </p>
+{/if}
 
-<!-- usuário não precisa apertar enter, somente esperar depois que digitou (debounce de 500-1000ms) -->
-<!-- load para a requisição -->
-<!-- não consultar a api se o nome estiver vazio -->
+<!-- quando atualizar a página não limpar o input -->
