@@ -1,6 +1,23 @@
-export const load = () => {
-    return
+import type { PageLoad } from "./$types"
 
-    //pegar os parametros, usar o decode e fazer a requisição
+export interface IName {
+    count: number,
+    name: string,
+    age: number
+}
+
+export const load: PageLoad = async ({ url, fetch }) => {
+    const name = url.searchParams.get('name')
+
+    console.log(name)
+
+    if (!name) {
+        return {}
+    }
+
+    const response = await fetch(`https://api.agify.io/?name=${name}`)
+    const nameInformation: IName = await response.json()
+    
+    return { nameInformation }
 }
 
