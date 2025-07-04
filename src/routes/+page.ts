@@ -9,8 +9,6 @@ export interface IName {
 export const load: PageLoad = async ({ url, fetch }) => {
     const name = url.searchParams.get('name')
 
-    console.log(name)
-
     if (!name) {
         return {}
     }
